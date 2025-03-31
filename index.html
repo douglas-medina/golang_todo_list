@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+</head>
+
+<body>
+    <h1>To-Do List</h1>
+
+    <form id="addTaskForm">
+        <input type="text" id="taskDescription" placeholder="Descrição da tarefa" required />
+        <button type="submit">Adicionar Tarefa</button>
+    </form>
+
+    <h2>Lista de Tarefas</h2>
+    <ul id="taskList"></ul>
+
+    <script>
+        // Função para carregar as tarefas
+        function loadTasks() {
+            fetch("http://localhost:8080/tasks")
+                .then(response => response.json())
+                .then(tasks => {
+                    const taskList = document.getElementById("taskList");
+                    taskList.innerHTML = "";  // Limpa a lista de tarefas
+
+                    tasks.forEach(task => {
+                        const li = document.createElement("li");
+                        li.textContent = task.description;
+
+                        if (task.completed) {
+                            li.style.textDecoration = "line-through";
+                        } else {
+                            const checkButton = document.createElement("button");
+                            checkButton.textContent = "Marcar como pronta";
+                            checkButton.onclick = () => markComplete(task.id);
+                            li.appendChild(checkButton);
+                        }
+
+                        const deleteButton = document.createElement("button");
+                        deleteButton.textContent = "Deletar";
+                        deleteButton.onclick = () => deleteTask(task.id);
+                        li.appendChild(deleteButton);
+
+                        taskList.appendChild(li);
+                    });
+                });
+        }
+
+        // Função para adicionar uma nova tarefa
+        document.getElementById("addTaskForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const description = document.getElementById("taskDescription").value;
+
+            fetch("http://localhost:8080/add", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ description: description }),
+            })
+                .then(response => response.json())
+                .then(() => {
+                    loadTasks();
+                    document.getElementById("taskDescription").value = ""; // Limpar o campo de texto
+                });
+        });
+
+        // Função para marcar uma tarefa como pronta
+        function markComplete(id) {
+            fetch("http://localhost:8080/complete", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ id: id }),
+            })
+                .then(() => loadTasks());
+        }
+
+        // Função para deletar uma tarefa
+        function deleteTask(id) {
+            fetch("http://localhost:8080/delete", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ id: id }),
+            })
+                .then(() => loadTasks());
+        }
+
+        // Carregar as tarefas quando a página for carregada
+        window.onload = loadTasks;
+    </script>
+</body>
+
+</html>

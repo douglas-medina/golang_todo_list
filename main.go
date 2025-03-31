@@ -22,6 +22,7 @@ var nextID = 1 		// ID para próxima tarefa
 
 // Função para listar tarefas
 func getTask(w http.ResponseWriter, r *http.Request) {
+	fmt.Printf("Request: %s %s\n", r.Method, r.URL.Path)
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -31,6 +32,7 @@ func getTask(w http.ResponseWriter, r *http.Request) {
 
 // Função para criar nova tarefa
 func addTask(w http.ResponseWriter, r *http.Request) {
+	fmt.Printf("Request: %s %s\n", r.Method, r.URL.Path)
 	var task Task
 	decoder := json.NewDecoder(r.Body) // transforma o body da requisição na estrutura definido para tarefas (linha 11)
 
@@ -52,6 +54,7 @@ func addTask(w http.ResponseWriter, r *http.Request) {
 
 // Função para mudar status da tarefa
 func maskTaskComplete(w http.ResponseWriter, r *http.Request) {
+	fmt.Printf("Request: %s %s\n", r.Method, r.URL.Path)
 	var taskID map[string]int
 
 	decoder := json.NewDecoder(r.Body)
@@ -78,6 +81,7 @@ func maskTaskComplete(w http.ResponseWriter, r *http.Request) {
 
 // Função para deletar tarefa
 func deleteTask(w http.ResponseWriter, r *http.Request) {
+	fmt.Printf("Request: %s %s\n", r.Method, r.URL.Path)
 	var taskID map[string]int
 
 	decoder := json.NewDecoder(r.Body)
